@@ -80,16 +80,10 @@ margin-left: 5px;
 border-top-left-radius: 10%;
 border-bottom-left-radius: 10%;
 `;
-
-export const ContainerCustom = styled.div`
-  height: 100vh;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
+export const StyledVideo = styled.video`
+    height: 40%;
+    width: 50%;
 `;
-
-
-
 export const Video = styled.video`
   border: 1px solid blue;
   width: 100%;

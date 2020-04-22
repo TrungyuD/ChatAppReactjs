@@ -208,8 +208,6 @@ const App = (props) => {
             <p className="m-auto">User name: <span className="font-weight-bold text-danger">{yourID}</span>
           </p></Col>
         </Row>
-        
-        
       </div>
       <div>
         <Row>
@@ -219,7 +217,6 @@ const App = (props) => {
               {elmUsers}
             </div>
           </Col>
-
 
           <Col xs={3}className="p-0 border-right">
             <h3 className="bg-success text-center p-0">Chat Rooms</h3>
