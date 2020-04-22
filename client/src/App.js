@@ -9,7 +9,7 @@ import {ChatRoom,
         ButtonCustom, FormCustom, 
         MyRow, MyMessage,
         PartnerRow, PartnerMessage,
-        ContainerCustom, Video} from './components/ChatRoom';
+        Video} from './components/ChatRoom';
 // const Row = styled.div`
 //   display: flex;
 //   width: 100%;
@@ -109,8 +109,71 @@ const App = (props) => {
   console.log("roomid", roomsVideo);
   
   ///video call 2 ng
-  
+  const  callPeer =(id)=> {
+    const peer = new Peer({
+      initiator: true,
+      trickle: false,
+      stream: stream,
+    });
 
+    peer.on("signal", data => {
+      socket.current.emit("callUser", { userToCall: id, signalData: data, from: yourID })
+    })
+
+    peer.on("stream", stream => {
+      if (partnerVideo.current) {
+        partnerVideo.current.srcObject = stream;
+      }
+    });
+
+    socket.current.on("callAccepted", signal => {
+      setCallAccepted(true);
+      peer.signal(signal);
+    })
+
+  }
+
+  const acceptCall = () => {
+    setCallAccepted(true);
+    const peer = new Peer({
+      initiator: false,
+      trickle: false,
+      stream: stream,
+    });
+    peer.on("signal", data => {
+      socket.current.emit("acceptCall", { signal: data, to: caller })
+    })
+
+    peer.on("stream", stream => {
+      partnerVideo.current.srcObject = stream;
+    });
+
+    peer.signal(callerSignal);
+  }
+
+  let UserVideo;
+  if (stream) {
+    UserVideo = (
+      <Video playsInline muted ref={userVideo} autoPlay />
+    );
+  }
+
+  let PartnerVideo;
+  if (callAccepted) {
+    PartnerVideo = (
+      <Video playsInline ref={partnerVideo} autoPlay />
+    );
+  }
+
+  let incomingCall;
+  if (receivingCall) {
+    incomingCall = (
+      <div className="text-center">
+        <p className="bg-success mb-2"><span className="text-danger">{caller}</span> is calling you</p>
+        <Button variant="success " onClick={acceptCall}>Accept</Button>
+      </div>
+    )
+  }
 
   //// display all user online
   const elmUsers = Object.keys(users).map(key => {
@@ -123,8 +186,7 @@ const App = (props) => {
           {key}
         </Dropdown.Toggle>
         <Dropdown.Menu>
-          <Dropdown.Item href="">Chat</Dropdown.Item>
-          <Dropdown.Item href="">Video Call</Dropdown.Item>
+          <Dropdown.Item onClick={() => callPeer(key)} href="">Video Call</Dropdown.Item>
         </Dropdown.Menu>
       </Dropdown>
     );
@@ -136,7 +198,12 @@ const App = (props) => {
       <div className="bg-warning  text-center ">
         <Row>
           <Col><h1 className="m-0">Welcome to Chat App</h1></Col>
-          <Col className="m-auto"><Button variant="light" onClick={createRoomVideoCall} className="m-auto">Create Room Video Call</Button></Col>
+          <Col className="m-auto">
+            <Button variant="light" 
+              onClick={createRoomVideoCall} 
+              className="m-auto">
+                Create Room Video Call
+            </Button></Col>
           <Col className="m-auto">
             <p className="m-auto">User name: <span className="font-weight-bold text-danger">{yourID}</span>
           </p></Col>
@@ -152,6 +219,8 @@ const App = (props) => {
               {elmUsers}
             </div>
           </Col>
+
+
           <Col xs={3}className="p-0 border-right">
             <h3 className="bg-success text-center p-0">Chat Rooms</h3>
               <ChatRoom>
@@ -162,9 +231,18 @@ const App = (props) => {
                 <ButtonCustom>Send</ButtonCustom>
               </FormCustom>
           </Col>
+
+
           <Col xs={3} className="p-0 border-right">
             <h3 className="bg-success text-center p-0">Video call</h3>
+            <div>
+              {UserVideo}
+              {PartnerVideo}
+              {incomingCall}
+            </div>
           </Col>
+
+
           <Col xs={3} className="p-0 border-right">
             <h3 className="bg-success text-center p-0">Video Room</h3>
           </Col>
