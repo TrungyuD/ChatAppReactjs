@@ -20,7 +20,7 @@ import {ChatRoom,
 //   height: 50%;
 // `;
 
-function App() {
+const App = (props) => {
   const [yourID, setYourID] = useState("");
   const [users, setUsers] = useState({});
   const [messages, setMessages] = useState([]);
@@ -31,10 +31,11 @@ function App() {
   const [callerSignal, setCallerSignal] = useState();
   const [callAccepted, setCallAccepted] = useState(false);
 
+  // const [roomsVideo, setRoomsVideo]=useState([]);
   const userVideo = useRef();
   const partnerVideo = useRef();
   const socket = useRef();
-
+  
   useEffect(() => {
     socket.current = io.connect("/");
     // navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then(stream => {
@@ -77,6 +78,13 @@ function App() {
   const handleChange = (e) => {
     setMessage(e.target.value);
   }
+  const roomsVideo = []; roomsVideo.push('hi');
+  const createRoomVideoCall = () => {
+    const id = uuid();
+    roomsVideo.push(id);
+    props.history.push(`/room/${id}`);
+  } 
+  console.log("roomid", roomsVideo);
   const me = "<me>";
   const you = "<your>";
   const elmMessages = messages.map((message, index) => {
@@ -114,12 +122,13 @@ function App() {
     );
   })
   console.log('all users', users);
+  
   return (
     <div>
       <div className="bg-warning  text-center ">
         <Row>
           <Col><h1 className="m-0">Welcome to Chat App</h1></Col>
-          <Col className="m-auto"><Button variant="light" className="m-auto">Create Room Video Call</Button></Col>
+          <Col className="m-auto"><Button variant="light" onClick={createRoomVideoCall} className="m-auto">Create Room Video Call</Button></Col>
           <Col className="m-auto">
             <p className="m-auto">User name: <span className="font-weight-bold text-danger">{yourID}</span>
           </p></Col>
