@@ -2,7 +2,8 @@ import React, { useEffect, useState, useRef } from 'react';
 import './App.css';
 import io from "socket.io-client";
 import Peer from "simple-peer";
-import {Row, Col, Dropdown} from 'react-bootstrap';
+import { v1 as uuid } from "uuid";
+import {Row, Col, Dropdown, Button} from 'react-bootstrap';
 import {ChatRoom, 
         TextArea, 
         ButtonCustom, FormCustom, 
@@ -77,7 +78,7 @@ function App() {
     setMessage(e.target.value);
   }
   const me = "<me>";
-  const you = "<you>";
+  const you = "<your>";
   const elmMessages = messages.map((message, index) => {
     if (message.id === yourID) {
       return (
@@ -101,7 +102,7 @@ function App() {
       return null;
     }
     return (
-      <Dropdown className="ml-3">
+      <Dropdown className="ml-3 mb-2">
         <Dropdown.Toggle variant="success" id="dropdown-basic">
           {key}
         </Dropdown.Toggle>
@@ -115,8 +116,16 @@ function App() {
   console.log('all users', users);
   return (
     <div>
-      <div>
-        <h1>Welcome to Chat App</h1>
+      <div className="bg-warning  text-center ">
+        <Row>
+          <Col><h1 className="m-0">Welcome to Chat App</h1></Col>
+          <Col className="m-auto"><Button variant="light" className="m-auto">Create Room Video Call</Button></Col>
+          <Col className="m-auto">
+            <p className="m-auto">User name: <span className="font-weight-bold text-danger">{yourID}</span>
+          </p></Col>
+        </Row>
+        
+        
       </div>
       <div>
         <Row>

@@ -12,7 +12,7 @@ flex-direction: column;
 export const ChatRoom = styled.div`
 display: flex;
 flex-direction: column;
-height: 500px;
+height: 350px;
 max-height: 500px;
 overflow: auto;
 border: 1px solid lightgray;
@@ -73,7 +73,7 @@ justify-content: flex-start;
 export const PartnerMessage = styled.div`
 width: 45%;
 background-color: transparent;
-color: lightgray;
+color: #46516e;
 border: 1px solid lightgray;
 padding: 10px;
 margin-left: 5px;
