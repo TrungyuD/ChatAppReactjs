@@ -1,162 +1,154 @@
-import React, { useState, useEffect, useRef } from "react";
-import styled from "styled-components";
+import React, { useEffect, useState, useRef } from 'react';
+import './App.css';
 import io from "socket.io-client";
+import Peer from "simple-peer";
+import {Row, Col, Dropdown} from 'react-bootstrap';
+import {ChatRoom, 
+        TextArea, 
+        ButtonCustom, FormCustom, 
+        MyRow, MyMessage,
+        PartnerRow, PartnerMessage} from './components/ChatRoom';
+// const Row = styled.div`
+//   display: flex;
+//   width: 100%;
+// `;
 
-const Page = styled.div`
-  display: flex;
-  height: 100vh;
-  width: 100%;
-  align-items: center;
-  background-color: #46516e;
-  flex-direction: column;
-`;
+// const Video = styled.video`
+//   border: 1px solid blue;
+//   width: 50%;
+//   height: 50%;
+// `;
 
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  height: 500px;
-  max-height: 500px;
-  overflow: auto;
-  width: 400px;
-  border: 1px solid lightgray;
-  border-radius: 10px;
-  padding-bottom: 10px;
-  margin-top: 25px;
-`;
-
-const TextArea = styled.textarea`
-  width: 98%;
-  height: 100px;
-  border-radius: 10px;
-  margin-top: 10px;
-  padding-left: 10px;
-  padding-top: 10px;
-  font-size: 17px;
-  background-color: transparent;
-  border: 1px solid lightgray;
-  outline: none;
-  color: lightgray;
-  letter-spacing: 1px;
-  line-height: 20px;
-  ::placeholder {
-    color: lightgray;
-  }
-`;
-
-const Button = styled.button`
-  background-color: pink;
-  width: 100%;
-  border: none;
-  height: 50px;
-  border-radius: 10px;
-  color: #46516e;
-  font-size: 17px;
-`;
-
-const Form = styled.form`
-  width: 400px;
-`;
-
-const MyRow = styled.div`
-  width: 100%;
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 10px;
-`;
-
-const MyMessage = styled.div`
-  width: 45%;
-  background-color: pink;
-  color: #46516e;
-  padding: 10px;
-  margin-right: 5px;
-  text-align: center;
-  border-top-right-radius: 10%;
-  border-bottom-right-radius: 10%;
-`;
-
-const PartnerRow = styled(MyRow)`
-  justify-content: flex-start;
-`;
-
-const PartnerMessage = styled.div`
-  width: 45%;
-  background-color: transparent;
-  color: lightgray;
-  border: 1px solid lightgray;
-  padding: 10px;
-  margin-left: 5px;
-  text-align: center;
-  border-top-left-radius: 10%;
-  border-bottom-left-radius: 10%;
-`;
-
-const App = () => {
-  const [yourID, setYourID] = useState();
+function App() {
+  const [yourID, setYourID] = useState("");
+  const [users, setUsers] = useState({});
   const [messages, setMessages] = useState([]);
   const [message, setMessage] = useState("");
+  const [stream, setStream] = useState();
+  const [receivingCall, setReceivingCall] = useState(false);
+  const [caller, setCaller] = useState("");
+  const [callerSignal, setCallerSignal] = useState();
+  const [callAccepted, setCallAccepted] = useState(false);
 
-  const socketRef = useRef();
+  const userVideo = useRef();
+  const partnerVideo = useRef();
+  const socket = useRef();
 
   useEffect(() => {
-    socketRef.current = io.connect('/');
+    socket.current = io.connect("/");
+    // navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then(stream => {
+    //   setStream(stream);
+    //   if (userVideo.current) {
+    //     userVideo.current.srcObject = stream;
+    //   }
+    // })
 
-    socketRef.current.on("your id", id => {
+    socket.current.on("yourID", (id) => {
       setYourID(id);
     })
-
-    socketRef.current.on("message", (message) => {
+    socket.current.on("allUsers", (users) => {
+      setUsers(users);
+    })
+    socket.current.on("message", (message) => {
       console.log("here");
       receivedMessage(message);
     })
+    // socket.current.on("hey", (data) => {
+    //   setReceivingCall(true);
+    //   setCaller(data.from);
+    //   setCallerSignal(data.signal);
+    // })
   }, []);
 
-  function receivedMessage(message) {
+  const receivedMessage=(message) => {
     setMessages(oldMsgs => [...oldMsgs, message]);
   }
 
-  function sendMessage(e) {
+  const sendMessage =(e) => {
     e.preventDefault();
     const messageObject = {
       body: message,
       id: yourID,
     };
     setMessage("");
-    socketRef.current.emit("send message", messageObject);
+    socket.current.emit("send message", messageObject);
   }
-
-  function handleChange(e) {
+  const handleChange = (e) => {
     setMessage(e.target.value);
   }
-  console.log(yourID);
+  const me = "<me>";
+  const you = "<you>";
+  const elmMessages = messages.map((message, index) => {
+    if (message.id === yourID) {
+      return (
+        <MyRow key={index}>
+          <MyMessage>
+            {message.body} {me}
+          </MyMessage>
+        </MyRow>
+      )
+    }
+    return (
+      <PartnerRow key={index}>
+        <PartnerMessage>
+          {you} {message.body}
+        </PartnerMessage>
+      </PartnerRow>
+    )
+  })
+  const elmUsers = Object.keys(users).map(key => {
+    if (key === yourID) {
+      return null;
+    }
+    return (
+      <Dropdown className="ml-3">
+        <Dropdown.Toggle variant="success" id="dropdown-basic">
+          {key}
+        </Dropdown.Toggle>
+        <Dropdown.Menu>
+          <Dropdown.Item href="">Chat</Dropdown.Item>
+          <Dropdown.Item href="">Video Call</Dropdown.Item>
+        </Dropdown.Menu>
+      </Dropdown>
+    );
+  })
+  console.log('all users', users);
   return (
-    <Page>
-      <Container>
-        {messages.map((message, index) => {
-          if (message.id === yourID) {
-            return (
-              <MyRow key={index}>
-                <MyMessage>
-                  {message.body}
-                </MyMessage>
-              </MyRow>
-            )
-          }
-          return (
-            <PartnerRow key={index}>
-              <PartnerMessage>
-                {message.body}
-              </PartnerMessage>
-            </PartnerRow>
-          )
-        })}
-      </Container>
-      <Form onSubmit={sendMessage}>
-        <TextArea value={message} onChange={handleChange} placeholder="Say something..." />
-        <Button>Send</Button>
-      </Form>
-    </Page>
+    <div>
+      <div>
+        <h1>Welcome to Chat App</h1>
+      </div>
+      <div>
+        <Row>
+          <Col xs={3} className="p-0 border-right">
+            <h3 className="bg-success text-center p-0">Online Users</h3>
+            <div>
+              {elmUsers}
+            </div>
+          </Col>
+          <Col xs={3}className="p-0 border-right">
+            <h3 className="bg-success text-center p-0">Chat Rooms</h3>
+              <ChatRoom>
+                {elmMessages}
+              </ChatRoom>
+              <FormCustom onSubmit={sendMessage}>
+                <TextArea value={message} onChange={handleChange} placeholder="Say something..." />
+                <ButtonCustom>Send</ButtonCustom>
+              </FormCustom>
+          </Col>
+          <Col xs={3} className="p-0 border-right">
+            <h3 className="bg-success text-center p-0">Video call</h3>
+          </Col>
+          <Col xs={3} className="p-0 border-right">
+            <h3 className="bg-success text-center p-0">Video Room</h3>
+          </Col>
+        </Row>
+      </div>
+        
+    </div>
+    
+    
   );
-};
+}
 
 export default App;
