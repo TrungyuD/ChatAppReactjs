@@ -228,8 +228,7 @@ const App = (props) => {
                 <ButtonCustom>Send</ButtonCustom>
               </FormCustom>
           </Col>
-
-
+          
           <Col xs={3} className="p-0 border-right">
             <h3 className="bg-success text-center p-0">Video call</h3>
             <div>
