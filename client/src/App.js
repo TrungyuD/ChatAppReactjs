@@ -8,7 +8,8 @@ import {ChatRoom,
         TextArea, 
         ButtonCustom, FormCustom, 
         MyRow, MyMessage,
-        PartnerRow, PartnerMessage} from './components/ChatRoom';
+        PartnerRow, PartnerMessage,
+        ContainerCustom, Video} from './components/ChatRoom';
 // const Row = styled.div`
 //   display: flex;
 //   width: 100%;
@@ -38,12 +39,12 @@ const App = (props) => {
   
   useEffect(() => {
     socket.current = io.connect("/");
-    // navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then(stream => {
-    //   setStream(stream);
-    //   if (userVideo.current) {
-    //     userVideo.current.srcObject = stream;
-    //   }
-    // })
+    navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then(stream => {
+      setStream(stream);
+      if (userVideo.current) {
+        userVideo.current.srcObject = stream;
+      }
+    })
 
     socket.current.on("yourID", (id) => {
       setYourID(id);
@@ -55,17 +56,16 @@ const App = (props) => {
       console.log("here");
       receivedMessage(message);
     })
-    // socket.current.on("hey", (data) => {
-    //   setReceivingCall(true);
-    //   setCaller(data.from);
-    //   setCallerSignal(data.signal);
-    // })
+    socket.current.on("hey", (data) => {
+      setReceivingCall(true);
+      setCaller(data.from);
+      setCallerSignal(data.signal);
+    })
   }, []);
-
+  /// nhan tin chung
   const receivedMessage=(message) => {
     setMessages(oldMsgs => [...oldMsgs, message]);
   }
-
   const sendMessage =(e) => {
     e.preventDefault();
     const messageObject = {
@@ -78,13 +78,6 @@ const App = (props) => {
   const handleChange = (e) => {
     setMessage(e.target.value);
   }
-  const roomsVideo = []; roomsVideo.push('hi');
-  const createRoomVideoCall = () => {
-    const id = uuid();
-    roomsVideo.push(id);
-    props.history.push(`/room/${id}`);
-  } 
-  console.log("roomid", roomsVideo);
   const me = "<me>";
   const you = "<your>";
   const elmMessages = messages.map((message, index) => {
@@ -105,6 +98,21 @@ const App = (props) => {
       </PartnerRow>
     )
   })
+
+  //// nhap''
+  const roomsVideo = []; roomsVideo.push('hi');
+  const createRoomVideoCall = () => {
+    const id = uuid();
+    roomsVideo.push(id);
+    props.history.push(`/room/${id}`);
+  } 
+  console.log("roomid", roomsVideo);
+  
+  ///video call 2 ng
+  
+
+
+  //// display all user online
   const elmUsers = Object.keys(users).map(key => {
     if (key === yourID) {
       return null;
