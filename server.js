@@ -47,7 +47,7 @@ io.on('connection', socket => {
         const usersInThisRoom = users[roomID].filter(id => id !== socket.id);
 
         socket.emit("all users", usersInThisRoom);
-        
+
         console.log('users', users);
         console.log('roomID', roomID);
         console.log('socketToRoom', socketToRoom);
@@ -68,8 +68,7 @@ io.on('connection', socket => {
         if (room) {
             room = room.filter(id => id !== socket.id);
             users[roomID] = room;
-        }
-       
+        } 
     });
 
 
