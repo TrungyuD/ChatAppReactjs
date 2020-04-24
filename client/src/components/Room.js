@@ -28,6 +28,7 @@ const Room = (props) => {
         navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then(stream => {
             userVideo.current.srcObject = stream;
             socket.current.emit("join room", roomID);
+            
             socket.current.on("all users", users => {
                 console.log('users',users);
                 const peers = [];
