@@ -3,24 +3,13 @@ import './App.css';
 import io from "socket.io-client";
 import Peer from "simple-peer";
 import { v1 as uuid } from "uuid";
-import {Row, Col, Dropdown, Button} from 'react-bootstrap';
+import {Row, Col, Dropdown, Button, InputGroup, FormControl} from 'react-bootstrap';
 import {ChatRoom, 
         TextArea, 
         ButtonCustom, FormCustom, 
         MyRow, MyMessage,
         PartnerRow, PartnerMessage,
         Video} from './components/ChatRoom';
-// const Row = styled.div`
-//   display: flex;
-//   width: 100%;
-// `;
-
-// const Video = styled.video`
-//   border: 1px solid blue;
-//   width: 50%;
-//   height: 50%;
-// `;
-
 const App = (props) => {
   const [yourID, setYourID] = useState("");
   const [users, setUsers] = useState({});
@@ -32,20 +21,29 @@ const App = (props) => {
   const [callerSignal, setCallerSignal] = useState();
   const [callAccepted, setCallAccepted] = useState(false);
 
-  // const [roomsVideo, setRoomsVideo]=useState([]);
+  const [roomsVideo, setRoomsVideo]=useState([]);
+  const [createRoomButton, setCreateRoomButton] = useState("Create");
+  const [defaultValue, setDefaultValue] = useState("");
+  const [socketCurrent, setSocketCurrent] = useState();
   const userVideo = useRef();
   const partnerVideo = useRef();
   const socket = useRef();
-  
+  const roomID = useRef("");
   useEffect(() => {
     socket.current = io.connect("/");
+    setSocketCurrent(socket.current);
+    console.log('socket.current', socket.current);
+    
     navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then(stream => {
       setStream(stream);
       if (userVideo.current) {
         userVideo.current.srcObject = stream;
       }
     })
-
+    socket.current.on("create room IDs", room=>{
+      console.log('roomIds vua tao o server do', room);
+      setRoomsVideo(room);
+    })
     socket.current.on("yourID", (id) => {
       setYourID(id);
     })
@@ -62,6 +60,8 @@ const App = (props) => {
       setCallerSignal(data.signal);
     })
   }, []);
+  console.log('socket.current', socketCurrent);
+  console.log('roomsVideo', roomsVideo);
   /// nhan tin chung
   const receivedMessage=(message) => {
     setMessages(oldMsgs => [...oldMsgs, message]);
@@ -98,15 +98,18 @@ const App = (props) => {
       </PartnerRow>
     )
   })
-
-  //// nhap''
-  const roomsVideo = []; roomsVideo.push('hi');
   const createRoomVideoCall = () => {
-    const id = uuid();
-    roomsVideo.push(id);
-    props.history.push(`/room/${id}`);
+    if(createRoomButton === "Create"){
+      const roomIds = uuid();
+      setDefaultValue(roomIds);
+      socketCurrent.emit("create room ID", roomIds)
+      setCreateRoomButton("Connect");
+      console.log('socketCurrent', socketCurrent);
+    }
+    else {
+      props.history.push(`/room/${defaultValue}`);
+    }
   } 
-  console.log("roomid", roomsVideo);
   
   ///video call 2 ng
   const  callPeer =(id)=> {
@@ -191,19 +194,35 @@ const App = (props) => {
       </Dropdown>
     );
   })
-  console.log('all users', users);
-  
+  const elmRoomsId = roomsVideo.map(key=>{
+    return(
+      <div> Join Room Video: <Button onClick={()=>{
+        props.history.push(`/room/${key}`);
+      }}>{key}</Button> </div>
+    )
+  })
   return (
     <div>
       <div className="bg-warning  text-center ">
         <Row>
           <Col><h1 className="m-0">Welcome to Chat App</h1></Col>
           <Col className="m-auto">
-            <Button variant="light" 
+          <div class="input-group mb-3 m-auto">
+            <input type="text" class="form-control" ref={roomID}
+                    defaultValue={defaultValue}
+                    placeholder="Please Click Create To Create Video Room" 
+                    aria-label="Recipient's username" 
+                    aria-describedby="basic-addon2"/>
+            <div class="input-group-append">
+              <button class="btn btn-outline-secondary" onClick={createRoomVideoCall} type="button">{createRoomButton}</button>
+            </div>
+          </div>
+            {/* <Button variant="light" 
               onClick={createRoomVideoCall} 
               className="m-auto">
                 Create Room Video Call
-            </Button></Col>
+            </Button> */}
+          </Col>
           <Col className="m-auto">
             <p className="m-auto">User name: <span className="font-weight-bold text-danger">{yourID}</span>
           </p></Col>
@@ -241,6 +260,9 @@ const App = (props) => {
 
           <Col xs={3} className="p-0 border-right">
             <h3 className="bg-success text-center p-0">Video Room</h3>
+            <div>
+              {elmRoomsId}
+            </div>
           </Col>
         </Row>
       </div>

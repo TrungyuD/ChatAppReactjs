@@ -8,19 +8,25 @@ const io = socket(server);
 const user = {};
 const users = {};
 const socketToRoom = {};
+const room = [];
 io.on('connection', socket => {
     if (!user[socket.id]) {
         user[socket.id] = socket.id;
     }
     socket.emit("yourID", socket.id);
     socket.on("send message", body => {
+        console.log('body', body);
         io.emit("message", body)
     })
     io.sockets.emit("allUsers", user);
     socket.on('disconnect', () => {
         delete user[socket.id];
     })
-
+    socket.on("create room ID", roomIds=>{
+        room.push(roomIds);
+        console.log('roomIds vua tao', room);
+        io.emit("create room IDs", room);
+    })
     socket.on("join room", roomID => {
         if (users[roomID]) {
             // const length = users[roomID].length;
