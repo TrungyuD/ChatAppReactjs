@@ -217,11 +217,6 @@ const App = (props) => {
               <button class="btn btn-outline-secondary" onClick={createRoomVideoCall} type="button">{createRoomButton}</button>
             </div>
           </div>
-            {/* <Button variant="light" 
-              onClick={createRoomVideoCall} 
-              className="m-auto">
-                Create Room Video Call
-            </Button> */}
           </Col>
           <Col className="m-auto">
             <p className="m-auto">User name: <span className="font-weight-bold text-danger">{yourID}</span>
