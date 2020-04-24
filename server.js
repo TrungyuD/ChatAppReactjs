@@ -13,20 +13,25 @@ io.on('connection', socket => {
     if (!user[socket.id]) {
         user[socket.id] = socket.id;
     }
+    console.log('user', user);
+    
     socket.emit("yourID", socket.id);
     socket.on("send message", body => {
-        console.log('body', body);
         io.emit("message", body)
     })
     io.sockets.emit("allUsers", user);
     socket.on('disconnect', () => {
         delete user[socket.id];
+        console.log('user', user);
+        io.emit("user disconnect", user);
     })
+
     socket.on("create room ID", roomIds=>{
         room.push(roomIds);
         console.log('roomIds vua tao', room);
         io.emit("create room IDs", room);
     })
+
     socket.on("join room", roomID => {
         if (users[roomID]) {
             // const length = users[roomID].length;
@@ -42,6 +47,11 @@ io.on('connection', socket => {
         const usersInThisRoom = users[roomID].filter(id => id !== socket.id);
 
         socket.emit("all users", usersInThisRoom);
+        
+        console.log('users', users);
+        console.log('roomID', roomID);
+        console.log('socketToRoom', socketToRoom);
+         
     });
 
     socket.on("sending signal", payload => {
@@ -58,10 +68,8 @@ io.on('connection', socket => {
         if (room) {
             room = room.filter(id => id !== socket.id);
             users[roomID] = room;
-            console.log('users',users);
         }
-        console.log('socketToRoom', socketToRoom);
-        console.log('room',room);
+       
     });
 
 

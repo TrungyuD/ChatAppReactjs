@@ -50,6 +50,10 @@ const App = (props) => {
     socket.current.on("allUsers", (users) => {
       setUsers(users);
     })
+    socket.current.on("user disconnect", user =>{
+      console.log('user', user);
+      setUsers(user);
+    })
     socket.current.on("message", (message) => {
       console.log("here");
       receivedMessage(message);
@@ -60,8 +64,6 @@ const App = (props) => {
       setCallerSignal(data.signal);
     })
   }, []);
-  console.log('socket.current', socketCurrent);
-  console.log('roomsVideo', roomsVideo);
   /// nhan tin chung
   const receivedMessage=(message) => {
     setMessages(oldMsgs => [...oldMsgs, message]);
