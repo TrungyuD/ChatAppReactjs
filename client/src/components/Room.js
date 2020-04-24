@@ -29,6 +29,7 @@ const Room = (props) => {
             userVideo.current.srcObject = stream;
             socket.current.emit("join room", roomID);
             socket.current.on("all users", users => {
+                console.log('users',users);
                 const peers = [];
                 users.forEach(userID => {
                     const peer = createPeer(userID, socket.current.id, stream);

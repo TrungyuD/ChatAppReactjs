@@ -32,7 +32,6 @@ const App = (props) => {
   useEffect(() => {
     socket.current = io.connect("/");
     setSocketCurrent(socket.current);
-    console.log('socket.current', socket.current);
     
     navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then(stream => {
       setStream(stream);
@@ -41,7 +40,6 @@ const App = (props) => {
       }
     })
     socket.current.on("create room IDs", room=>{
-      console.log('roomIds vua tao o server do', room);
       setRoomsVideo(room);
     })
     socket.current.on("yourID", (id) => {
