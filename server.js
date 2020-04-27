@@ -43,11 +43,11 @@ io.on('connection', socket => {
         const usersInThisRoom = users[roomID].filter(id => id !== socket.id);
         socket.emit("all users", usersInThisRoom);
 
-
-        console.log('users', users);
+        // console.log('usersInThisRoom', usersInThisRoom);
+        // console.log('users', users);
         console.log('roomID', roomID);
-        console.log('socketToRoom', socketToRoom);
-         
+        // console.log('socketToRoom', socketToRoom);
+        console.log('room', room);
     });
 
     socket.on("sending signal", payload => {
@@ -71,6 +71,12 @@ io.on('connection', socket => {
         console.log('socket.id', socket.id);
         console.log('users[roomID]', users[roomID]);
 
+        if(users[roomID].length === 0){
+            console.log('room',room);
+            // delete room[roomID];
+            // console.log('room',room);
+            
+        }
         
 
     });

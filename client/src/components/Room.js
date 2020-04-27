@@ -49,6 +49,8 @@ const Room = (props) => {
                     peerID: payload.callerID,
                     peer,
                 })
+                console.log('[...users, peer]', peersRef);
+                
                 setPeers(users => [...users, peer]);
             });
 
