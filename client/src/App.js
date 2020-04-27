@@ -102,7 +102,7 @@ const App = (props) => {
     if(createRoomButton === "Create"){
       const roomIds = uuid();
       setDefaultValue(roomIds);
-      socketCurrent.emit("create room ID", roomIds)
+      socketCurrent.emit("create room ID", roomIds);
       setCreateRoomButton("Connect");
       console.log('socketCurrent', socketCurrent);
     }

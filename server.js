@@ -13,7 +13,6 @@ io.on('connection', socket => {
     if (!user[socket.id]) {
         user[socket.id] = socket.id;
     }
-    console.log('user', user);
     
     socket.emit("yourID", socket.id);
     socket.on("send message", body => {
@@ -22,16 +21,13 @@ io.on('connection', socket => {
     io.sockets.emit("allUsers", user);
     socket.on('disconnect', () => {
         delete user[socket.id];
-        console.log('user', user);
         io.emit("user disconnect", user);
     })
 
     socket.on("create room ID", roomIds=>{
         room.push(roomIds);
-        console.log('roomIds vua tao', room);
         io.emit("create room IDs", room);
     })
-
     socket.on("join room", roomID => {
         if (users[roomID]) {
             // const length = users[roomID].length;
@@ -46,7 +42,8 @@ io.on('connection', socket => {
         socketToRoom[socket.id] = roomID;
         const usersInThisRoom = users[roomID].filter(id => id !== socket.id);
         socket.emit("all users", usersInThisRoom);
-        
+
+
         console.log('users', users);
         console.log('roomID', roomID);
         console.log('socketToRoom', socketToRoom);
@@ -68,6 +65,13 @@ io.on('connection', socket => {
             room = room.filter(id => id !== socket.id);
             users[roomID] = room;
         } 
+        
+        console.log('roomID', roomID);
+        console.log('room', room);
+        console.log('socket.id', socket.id);
+        console.log('users[roomID]', users[roomID]);
+
+
     });
 
 
