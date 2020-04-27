@@ -28,7 +28,9 @@ const Room = (props) => {
         navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then(stream => {
             userVideo.current.srcObject = stream;
             socket.current.emit("join room", roomID);
+            
             socket.current.on("all users", users => {
+                console.log('users',users);
                 const peers = [];
                 users.forEach(userID => {
                     const peer = createPeer(userID, socket.current.id, stream);
@@ -47,7 +49,6 @@ const Room = (props) => {
                     peerID: payload.callerID,
                     peer,
                 })
-
                 setPeers(users => [...users, peer]);
             });
 
@@ -86,7 +87,8 @@ const Room = (props) => {
         peer.signal(incomingSignal);
         return peer;
     }
-
+    console.log('peers', peers);
+    
     return (
         <div>
             <StyledVideo muted ref={userVideo} autoPlay playsInline />

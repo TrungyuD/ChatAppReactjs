@@ -8,10 +8,12 @@ const io = socket(server);
 const user = {};
 const users = {};
 const socketToRoom = {};
+const room = [];
 io.on('connection', socket => {
     if (!user[socket.id]) {
         user[socket.id] = socket.id;
     }
+    
     socket.emit("yourID", socket.id);
     socket.on("send message", body => {
         io.emit("message", body)
@@ -19,8 +21,13 @@ io.on('connection', socket => {
     io.sockets.emit("allUsers", user);
     socket.on('disconnect', () => {
         delete user[socket.id];
+        io.emit("user disconnect", user);
     })
 
+    socket.on("create room ID", roomIds=>{
+        room.push(roomIds);
+        io.emit("create room IDs", room);
+    })
     socket.on("join room", roomID => {
         if (users[roomID]) {
             // const length = users[roomID].length;
@@ -34,8 +41,13 @@ io.on('connection', socket => {
         }
         socketToRoom[socket.id] = roomID;
         const usersInThisRoom = users[roomID].filter(id => id !== socket.id);
-
         socket.emit("all users", usersInThisRoom);
+
+
+        console.log('users', users);
+        console.log('roomID', roomID);
+        console.log('socketToRoom', socketToRoom);
+         
     });
 
     socket.on("sending signal", payload => {
@@ -52,7 +64,15 @@ io.on('connection', socket => {
         if (room) {
             room = room.filter(id => id !== socket.id);
             users[roomID] = room;
-        }
+        } 
+        
+        console.log('roomID', roomID);
+        console.log('room', room);
+        console.log('socket.id', socket.id);
+        console.log('users[roomID]', users[roomID]);
+
+        
+
     });
 
 
