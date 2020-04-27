@@ -10,16 +10,6 @@ import {ChatRoom,
         MyRow, MyMessage,
         PartnerRow, PartnerMessage,
         Video} from './components/ChatRoom';
-// const Row = styled.div`
-//   display: flex;
-//   width: 100%;
-// `;
-
-// const Video = styled.video`
-//   border: 1px solid blue;
-//   width: 50%;
-//   height: 50%;
-// `;
 
 const App = (props) => {
   const [yourID, setYourID] = useState("");
@@ -36,7 +26,6 @@ const App = (props) => {
   const userVideo = useRef();
   const partnerVideo = useRef();
   const socket = useRef();
-  
   useEffect(() => {
     socket.current = io.connect("/");
     navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then(stream => {
@@ -45,6 +34,9 @@ const App = (props) => {
         userVideo.current.srcObject = stream;
       }
     })
+    .catch((err) => {
+      console.log(err.name + ": " + err.message);
+    });
 
     socket.current.on("yourID", (id) => {
       setYourID(id);
